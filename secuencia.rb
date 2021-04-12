@@ -74,6 +74,10 @@ class Grafo
 end
 
 class Busqueda
+    def initialize
+        raise "Dont do it xD"
+    end
+    
     def buscar(d, h)
         # crear arreglos para saber si un nodo fue visitado y su distancia al
         # primero
