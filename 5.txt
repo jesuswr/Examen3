@@ -1,0 +1,216 @@
+a.i)
+
+takeWhile (<= 3) (gen 1)
+
+foldr (\a r -> if (<= 3) a then a : r else []) [] (gen 1)
+
+(\a r -> if (<= 3) a then a : r else []) 1 $ 
+    foldr (\a r -> if (<= 3) a then a : r else []) [] (gen (1 + 1))
+
+if (<= 3) 1 then 1 : (foldr (\a r -> if (<= 3) a then a : r else []) [] (gen (1 + 1))
+
+1 : (foldr (\a r -> if (<= 3) a then a : r else []) [] (gen (1 + 1)))
+
+1 : ((\a r -> if (<= 3) a then a : r else []) (1 + 1) $
+        foldr (\a r -> if (<= 3) a then a : r else []) [] (gen (1 + 1 + 1)))
+
+1 : 2 : (foldr (\a r -> if (<= 3) a then a : r else []) [] (gen (1 + 1 + 1)))
+
+1 : 2 : ((\a r -> if (<= 3) a then a : r else []) (1 + 1 + 1) $
+            foldr (\a r -> if (<= 3) a then a : r else []) [] (gen (1 + 1 + 1 + 1)))
+
+1 : 2 : 3 : (foldr (\a r -> if (<= 3) a then a : r else []) [] (gen (1 + 1 + 1 + 1)))
+
+1 : 2 : 3 : ((\a r -> if (<= 3) a then a : r else []) (1 + 1 + 1 + 1) $
+                foldr (\a r -> if (<= 3) a then a : r else []) [] (gen (1+1+1+1+1)))
+
+1 : 2 : 3 : []
+
+[1, 2, 3]
+
+
+a.ii)
+
+takeWhile (<= 3) (gen 1)
+
+takeWhile (<= 3) (1:gen 2)
+
+takeWhile (<= 3) (1:2:gen 3)
+
+takeWhile (<= 3) (1:2:3:gen 4)
+
+.
+.
+.
+
+stackoverflow
+
+Eventualmente se detendra porque se quedara sin memoria ya que estara evaluando gen infinitamente,
+porque esta no tiene un caso base, por lo cual seguira evaluandola por siempre
+Esto es porque en evaluacion aplicativa, no puede evaluar la funcion hasta que sus args esten completamente
+evaluados
+
+
+b)
+
+foldA :: (a -> b -> b -> b) -> b -> Arbol a -> b
+foldA _ base Hoja = base
+foldA f base (Rama a izq der) = 
+    f a (foldA f base izq) (foldA f base der)
+
+
+c.i)
+
+takeWhileA (<= 3) (genA 1)
+
+foldA (\a i d -> if (<= 3) a then Rama a i d else Hoja) Hoja (genA 1)
+
+foldA (\a i d -> if (<= 3) a then Rama a i d else Hoja) Hoja (1 (genA (1+1)) (genA (1*2)))
+
+(\a i d -> if (<= 3) a then Rama a i d else Hoja) 1
+    (foldA (\a i d -> if (<= 3) a then Rama a i d else Hoja) Hoja (genA (1+1)))
+        (foldA (\a i d -> if (<= 3) a then Rama a i d else Hoja) Hoja (genA (1*2)))
+
+(\i d -> Rama 1 i d)
+    (foldA (\a i d -> if (<= 3) a then Rama a i d else Hoja) Hoja (genA (1+1)))
+        (foldA (\a i d -> if (<= 3) a then Rama a i d else Hoja) Hoja (genA (1*2)))
+
+
+Rama 1
+    (foldA (\a i d -> if (<= 3) a then Rama a i d else Hoja) Hoja (genA (1+1)))
+    (foldA (\a i d -> if (<= 3) a then Rama a i d else Hoja) Hoja (genA (1*2)))
+
+
+Rama 1
+    ((\a i d -> if (<= 3) a then Rama a i d else Hoja) 2
+        (foldA (\a i d -> if (<= 3) a then Rama a i d else Hoja) Hoja genA(1+1+1))
+        (foldA (\a i d -> if (<= 3) a then Rama a i d else Hoja) Hoja genA((1+1)*2)))
+    (foldA (\a i d -> if (<= 3) a then Rama a i d else Hoja) Hoja (genA (1*2)))
+
+Rama 1
+    (Rama 2 
+        (foldA (\a i d -> if (<= 3) a then Rama a i d else Hoja) Hoja genA(1+1+1))
+        (foldA (\a i d -> if (<= 3) a then Rama a i d else Hoja) Hoja genA((1+1)*2)))
+    (foldA (\a i d -> if (<= 3) a then Rama a i d else Hoja) Hoja (genA (1*2)))
+
+Rama 1
+    (Rama 2 
+        ((\a i d -> if (<= 3) a then Rama a i d else Hoja) 3
+            foldA (\a i d -> if (<= 3) a then Rama a i d else Hoja) Hoja genA(1+1+1+1)
+            foldA (\a i d -> if (<= 3) a then Rama a i d else Hoja) Hoja genA((1+1+1)*2))
+        (foldA (\a i d -> if (<= 3) a then Rama a i d else Hoja) Hoja genA((1+1)*2)))
+    (foldA (\a i d -> if (<= 3) a then Rama a i d else Hoja) Hoja (genA (1*2)))
+
+Rama 1
+    (Rama 2 
+        (Rama 3
+            foldA (\a i d -> if (<= 3) a then Rama a i d else Hoja) Hoja genA(1+1+1+1)
+            foldA (\a i d -> if (<= 3) a then Rama a i d else Hoja) Hoja genA((1+1+1)*2))
+        (foldA (\a i d -> if (<= 3) a then Rama a i d else Hoja) Hoja genA((1+1)*2)))
+    (foldA (\a i d -> if (<= 3) a then Rama a i d else Hoja) Hoja (genA (1*2)))
+
+Rama 1
+    (Rama 2 
+        (Rama 3
+            Hoja
+            Hoja)
+        (foldA (\a i d -> if (<= 3) a then Rama a i d else Hoja) Hoja genA((1+1)*2)))
+    (foldA (\a i d -> if (<= 3) a then Rama a i d else Hoja) Hoja (genA (1*2)))
+
+Rama 1
+    (Rama 2 
+        (Rama 3
+            Hoja
+            Hoja)
+        (Hoja))
+    (foldA (\a i d -> if (<= 3) a then Rama a i d else Hoja) Hoja (genA (1*2)))
+
+Rama 1
+    (Rama 2 
+        (Rama 3
+            Hoja
+            Hoja)
+        (Hoja))
+    ((\a i d -> if (<= 3) a then Rama a i d else Hoja) 2
+        (foldA (\a i d -> if (<= 3) a then Rama a i d else Hoja) Hoja (genA (1*2+1)))
+        foldA (\a i d -> if (<= 3) a then Rama a i d else Hoja) Hoja (genA (1*2*2)))
+
+Rama 1
+    (Rama 2 
+        (Rama 3
+            Hoja
+            Hoja)
+        (Hoja))
+    (Rama 2
+        (foldA (\a i d -> if (<= 3) a then Rama a i d else Hoja) Hoja (genA (1*2+1)))
+        foldA (\a i d -> if (<= 3) a then Rama a i d else Hoja) Hoja (genA (1*2*2)))
+
+Rama 1
+    (Rama 2 
+        (Rama 3
+            Hoja
+            Hoja)
+        (Hoja))
+    (Rama 2
+        ((\a i d -> if (<= 3) a then Rama a i d else Hoja) 3
+            (foldA (\a i d -> if (<= 3) a then Rama a i d else Hoja) Hoja (genA (1*2+1+1)))
+            (foldA (\a i d -> if (<= 3) a then Rama a i d else Hoja) Hoja (genA ((1*2+1*2)))))
+        foldA (\a i d -> if (<= 3) a then Rama a i d else Hoja) Hoja (genA (1*2*2)))
+
+Rama 1
+    (Rama 2 
+        (Rama 3
+            Hoja
+            Hoja)
+        (Hoja))
+    (Rama 2
+        (Rama 3
+            (foldA (\a i d -> if (<= 3) a then Rama a i d else Hoja) Hoja (genA (1*2+1+1)))
+            (foldA (\a i d -> if (<= 3) a then Rama a i d else Hoja) Hoja (genA ((1*2+1*2)))))
+        foldA (\a i d -> if (<= 3) a then Rama a i d else Hoja) Hoja (genA (1*2*2)))
+
+Rama 1
+    (Rama 2 
+        (Rama 3
+            Hoja
+            Hoja)
+        (Hoja))
+    (Rama 2
+        (Rama 3
+            Hoja
+            Hoja)
+        foldA (\a i d -> if (<= 3) a then Rama a i d else Hoja) Hoja (genA (1*2*2)))
+
+Rama 1
+    (Rama 2 
+        (Rama 3
+            Hoja
+            Hoja)
+        Hoja)
+    (Rama 2
+        (Rama 3
+            Hoja
+            Hoja)
+        Hoja)
+
+
+c.ii)
+
+takeWhileA (<= 3) (genA 1)
+
+takeWhileA (<= 3) (Rama 1 genA(2) genA(2))
+
+takeWhileA (<= 3) (Rama 1 (Rama 2 genA(3) genA(4)) genA(2))
+
+takeWhileA (<= 3) (Rama 1 (Rama 2 genA(3) genA(4)) (Rama 2 genA(3) genA(4))) 
+
+.
+.
+.
+
+stackoverflow
+
+Eventualmente se detendra porque se quedara sin memoria ya que estara evaluando genA infinitamente,
+porque esta no tiene un caso base, por lo cual seguira evaluandola por siempre.
+Esto es porque en evaluacion aplicativa, no puede evaluar la funcion hasta que sus args esten completamente
+evaluados
