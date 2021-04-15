@@ -90,7 +90,7 @@ class Busqueda
         end
         # llenar arreglos de visitados y disntacia
         for i in 0..(@grafo.G.size-1)
-            dist << 0
+            dist << 1
             visited << false
         end
 
