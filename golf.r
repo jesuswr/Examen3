@@ -1,3 +1,4 @@
+options(scipen = 999)
 a=strtoi(commandArgs()[6])
 x=0
 y=1
